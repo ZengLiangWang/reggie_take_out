@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=no,minimal-ui">
+    <title>菩提阁</title>
+
+    <style>
+        .avatar-uploader .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .avatar-uploader .el-upload:hover {
+            border-color: #409EFF;
+        }
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+        }
+        .avatar {
+            width: 20px;
+            height: 20px;
+            display: block;
+        }
+    </style>
+
+    <link rel="icon" href="./../images/favico.ico">
+    <!--不同屏幕尺寸根字体设置-->
+    <script src="./../js/base.js"></script>
+    <!--element-ui的样式-->
+    <link rel="stylesheet" href="../../backend/plugins/element-ui/index.css" />
+    <!--引入vant样式-->
+    <link rel="stylesheet" href="../styles/vant.min.css"/>
+    <!-- 引入样式  -->
+    <link rel="stylesheet" href="../styles/index.css" />
+    <!--本页面内容的样式-->
+    <link rel="stylesheet" href="./../styles/user-edit.css" />
+</head>
+<body>
+   <div id="user_edit" class="app">
+    <div class="divHead">
+        <div class="divTitle">
+            <i class="el-icon-arrow-left" @click="goTo"></i>{{title}}
+        </div>
+    </div>
+    <div class="divContent">
+        <div class="divItem">
+            <span>用户名：</span>
+             <input placeholder=" 请填写用户名" @input="forceUpdate"   @change='change()' defaultValue="test" v-model="param.name"  maxlength='10' class="inputUser"/></input>
+            <div>
+                <template>
+                    <input id="man" type="radio" checked="checked" name="1" value="0" v-model="param.sex"/>男
+                    <input id="woman" type="radio" name="1" value="1" v-model="param.sex"/>女
+                </template>
+            </div>
+        </div>
+        <div class="divItem">
+            <span>用户头像：</span>
+            <el-upload
+                    class="avatar-uploader"
+                    action="/common/upload"
+                    :on-change="onChange"
+                    :show-file-list="false"
+                    :on-success="handleAvatarSuccess"
+                    :before-upload="beforeAvatarUpload">
+                <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+        </div>
+        <div class="divSave" @click="saveUser" >保存用户信息</div>
+
+    </div>
+</div>
+
+   <!-- 开发环境版本,包含了有帮助的命令行警告 -->
+   <script src="../../backend/plugins/vue/vue.js"></script>
+   <!-- 引入组件库 -->
+   <script src="../../backend/plugins/element-ui/index.js"></script>
+   <!-- 引入vant样式 -->
+   <script src="./../js/vant.min.js"></script>
+   <script src="./../js/common.js"></script>
+   <script src="./../api/user.js"></script>
+   <!-- 引入axios -->
+   <script src="../../backend/plugins/axios/axios.min.js"></script>
+   <script src="./../js/request.js"></script>
+   <script>
+       new Vue({
+           el:"#user_edit",
+           data(){
+               return {
+                   imageUrl: '',
+                   sex: '1',
+                   input: '',
+                   title:'修改用户信息',
+
+                   param:{
+                       name:'',//用户名
+                       //0表示女 1 表示男
+                       sex:'',
+                       avatar:''
+                   },
+                   activeIndex :0,
+                   userList:{}
+               }
+           },
+           forceUpdate() {
+               this.$forceUpdate()
+           },
+           change(){
+               this.$forceUpdate();  //强制刷新
+           },
+           computed:{},
+           created(){
+               this.initData()
+           },
+           mounted(){
+           },
+           methods:{
+               saveUser(){
+                   //alert("保存用户信息")
+                   editorUser(this.param).then(res=>{
+                       alert("保存用户信息")
+                       if(res.code === 200){
+                           this.userList = res.data;
+                           this.goTo();
+                       }else{
+                           this.$message({
+                               showClose: true,
+                               message: res.msg,
+                               type: 'error'
+                           });
+                       }
+                   }).catch(error=>{
+                       this.$message({
+                           showClose: true,
+                           message: error,
+                           type: 'error'
+                       });
+                   })
+               },
+               handleAvatarSuccess(response, file,fileList) {
+                   if(response.code === 500){
+                       this.$message.error(response.msg)
+                       //window.top.location.href = '/backend/page/login/login.html'
+                   }else {
+                       this.imageUrl = `/common/download?name=${response.data}`
+                       this.param.avatar=response.data
+                   }
+
+               }/*,
+               beforeAvatarUpload(file) {
+                   const isJPG = file.type === 'image/jpeg';
+                   const isLt2M = file.size / 5120 / 5120 < 2;
+
+                   if (!isJPG) {
+                       this.$message.error('上传头像图片只能是 JPG 格式!');
+                   }
+                   if (!isLt2M) {
+                       this.$message.error('上传头像图片大小不能超过 5MB!');
+                   }
+                   return isJPG && isLt2M;
+               }*/,
+               onChange (file) {
+                   if(file){
+                       const suffix = file.name.split('.')[1]
+                       const size = file.size / 1024 / 1024 < 2
+                       if(['png','jpeg','jpg'].indexOf(suffix) < 0){
+                           this.$message.error('上传图片只支持 png、jpeg、jpg 格式！')
+                           this.$refs.upload.clearFiles()
+                           return false
+                       }
+                       if(!size){
+                           this.$message.error('上传文件大小不能超过 2MB!')
+                           return false
+                       }
+                       return file
+                   }
+               },
+               goTo(){
+                   window.requestAnimationFrame(()=>{
+                       window.location.href= '/front/page/user.html'
+
+                   })
+               }
+           }
+       })
+   </script>
+</body>
+</html>
