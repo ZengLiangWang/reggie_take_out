@@ -12,5 +12,7 @@ jobs:
     steps:
       - name: List directory contents 
         run: dir 
+        shell: cmd
       - name: Check Java version 
         run: java -version
+        shell: cmd
