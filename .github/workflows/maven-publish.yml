@@ -4,8 +4,7 @@
 name: Hello World
 
 on:
-  schedule:
-    - cron:  '10 7 * * *'
+ push
 
 jobs:
   job1:
