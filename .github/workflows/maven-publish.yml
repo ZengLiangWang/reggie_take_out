@@ -15,7 +15,7 @@ jobs:
        with:
         sparse-checkout: |
          **
-         !src/main/resources/
+         !src/main/resources/**
         sparse-checkout-cone-mode: false
      - name: List directory contents 
        run: dir 
