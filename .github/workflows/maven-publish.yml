@@ -20,6 +20,11 @@ jobs:
       - name: List directory contents 
         run: dir 
         shell: cmd
+      - name: List src directory contents 
+        run: | 
+         cd src
+         dir 
+        shell: cmd
       - name: Check Java version 
         run: java -version
         shell: cmd
