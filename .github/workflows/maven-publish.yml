@@ -16,7 +16,7 @@ jobs:
         sparse-checkout: |
          /*
          !src/main/resources/**  # 关键修改：使用双星号匹配所有子内容
-        sparse-checkout-cone-mode: false
+        sparse-checkout-cone-mode: true
      - name: List directory contents 
        run: dir 
        shell: cmd
