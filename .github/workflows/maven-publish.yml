@@ -22,7 +22,7 @@ jobs:
         shell: cmd
       - name: List src directory contents 
         run: | 
-         cd src
+         cd src/main
          dir 
         shell: cmd
       - name: Check Java version 
