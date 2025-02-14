@@ -10,21 +10,21 @@ jobs:
   job1:
     runs-on: windows-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-         sparse-checkout: |  # 仅检出需要的文件夹
-          /*
-          !src/main/resources           # 忽略 resources
-         sparse-checkout-cone-mode: false  # 允许复杂排除规则 
-      - name: List directory contents 
-        run: dir 
-        shell: cmd
-      - name: List src directory contents 
-        run: | 
-         cd src/main/resources
-         dir 
-        shell: cmd
-      - name: Check Java version 
-        run: java -version
-        shell: cmd
+     - name: Checkout code
+       uses: actions/checkout@v4
+       with:
+        sparse-checkout: |
+         /*
+         !src/main/resources/**  # 关键修改：使用双星号匹配所有子内容
+        sparse-checkout-cone-mode: false
+     - name: List directory contents 
+       run: dir 
+       shell: cmd
+     - name: List src directory contents 
+       run: | 
+        cd src/main/resources
+        dir 
+       shell: cmd
+     - name: Check Java version 
+       run: java -version
+       shell: cmd
